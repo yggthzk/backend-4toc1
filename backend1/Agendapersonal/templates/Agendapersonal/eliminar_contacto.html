@@ -1,0 +1,27 @@
+{% extends 'Agendapersonal/base.html' %}
+
+{% block title %}Confirmar Eliminación{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card text-center">
+                <div class="card-header">
+                    <h1 class="card-title">Confirmar Eliminación</h1>
+                </div>
+                <div class="card-body">
+                    <p>¿Estai seguro de que quieres eliminar al contacto? <strong>{{ contacto.nombre }}</strong>?</p>
+                    <p>Esta acción no se puede deshacer, lo vas a borrar para siempre.</p>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <button type="submit" class="btn btn-danger">Siii, eliminar</button>
+                            <a href="{% url 'lista_contactos' %}" class="btn btn-secondary">nonoo, Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
