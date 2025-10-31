@@ -1,34 +1,19 @@
-# backend1/settings.py
-
 from pathlib import Path
 import os
-import dj_database_url # <--- Asegúrate de importar esto
+import dj_database_url
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-# Leemos la SECRET_KEY desde las variables de entorno
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-ro5ca!fkfea^q!nv&jz%uu8i@ng4ifksf4vg1w8-m0kh1x+@6z')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG se desactivará automáticamente en Render
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'#dike
 
-# Configuración de Hosts permitidos
 ALLOWED_HOSTS = []
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 else:
-    # Para desarrollo local
-    ALLOWED_HOSTS.append('127.0.0.1', '*') #todoosss
-
-
-# Application definition
+    ALLOWED_HOSTS.append('127.0.0.1')
 
 INSTALLED_APPS = [
     'Agendapersonal',
@@ -39,12 +24,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'phonenumber_field',
-    'whitenoise.runserver_nostatic', # <--- Añadir para Whitenoise
+    'whitenoise.runserver_nostatic',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # <--- Añadir Whitenoise
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -72,24 +57,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend1.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-# Esta es la configuración de Base de Datos DEFINITIVA.
-# Usará la BD de Render cuando esté en la nube, 
-# y volverá a SQLite en tu PC si no encuentra la variable.
 DATABASES = {
     'default': dj_database_url.config(
-        # Render nos dará esta variable de entorno 'DATABASE_URL'
         default=os.environ.get('DATABASE_URL', f'sqlite:///{BASE_DIR / "db.sqlite3"}'),
         conn_max_age=600
     )
 }
-
-
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
@@ -98,20 +71,13 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
 ]
 
-
-# Internationalization
-LANGUAGE_CODE = 'es-cl' # <-- (Opcional: cambiar a español de Chile)
-TIME_ZONE = 'America/Santiago' # <-- (Opcional: cambiar zona horaria)
+LANGUAGE_CODE = 'es-cl'
+TIME_ZONE = 'America/Santiago'
 USE_I18N = True
 USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
