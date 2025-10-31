@@ -2,31 +2,36 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Contacto
 from .forms import ContactoForm
 from django.db.models import Q
-from django.contrib import messages#importando modulo de mensajes para errores o inserciones exitosass
+from django.contrib import messages
 from django.db import IntegrityError
-#importaciones
+from django.core.paginator import Paginator
 
-def lista_contactos(request):#obtenemos el valor de la url, si no existe regresa un string vacio
+def lista_contactos(request):
     query = request.GET.get('busqueda', '')
     if query:
-        contactos = Contacto.objects.filter(
+        contactos_lista = Contacto.objects.filter(
             Q(nombre__icontains=query) | Q(correo__icontains=query)
-        )#filtramos los contactos segun el nombre o correo del contacto usando q
+        ).order_by('nombre')
     else:
-        contactos = Contacto.objects.all()
-    contexto = {'contactos': contactos}
+        contactos_lista = Contacto.objects.all().order_by('nombre')
+    
+    paginator = Paginator(contactos_lista, 6) 
+    page_number = request.GET.get('page')
+    contactos = paginator.get_page(page_number)
+
+    contexto = {'contactos': contactos, 'query': query}
     return render(request, 'Agendapersonal/lista_contactos.html', contexto)
 
 def crear_contacto(request):
-    if request.method == 'POST':#
+    if request.method == 'POST':
         form = ContactoForm(request.POST)
         if form.is_valid():
-            try: #error al obtener el id SOLUCIONADOOO
+            try: 
                 form.save()
                 messages.success(request, '¡Contacto creado exitosamente!')
                 return redirect('lista_contactos')
             except IntegrityError as e:
-                if 'telefono' in str(e): #Si ocurre un error de integridad o manejo de exepciones nos dara aviso 
+                if 'telefono' in str(e): 
                     messages.error(request, 'Error: Ya existe un contacto con ese número de teléfono.')
                 elif 'correo' in str(e):
                     messages.error(request, 'Error: Ya existe un contacto con ese correo electrónico.')
@@ -34,11 +39,10 @@ def crear_contacto(request):
                     messages.error(request, 'Error: Ocurrió un problema al guardar el contacto.')
     else:
         form = ContactoForm()
-    return render(request, 'Agendapersonal/crear_contacto.html', {'form': form})#crear_contacto. NO SIRVEEE AAAAA 
+    return render(request, 'Agendapersonal/crear_contacto.html', {'form': form})
 
 def editar_contacto(request, id):
     contacto = get_object_or_404(Contacto, id=id)
-    #busco el contacto por el ID del post que tiene
     if request.method == 'POST':
         form = ContactoForm(request.POST, instance=contacto)
         if form.is_valid():
@@ -54,14 +58,14 @@ def editar_contacto(request, id):
                 else:
                     messages.error(request, 'Error: no se pudo guardar el contacto.')
     else:
-        form = ContactoForm(instance=contacto)#Al ingresar se mostratra la lista de contactos vacia. no hay contactos
+        form = ContactoForm(instance=contacto)
     return render(request, 'Agendapersonal/editar_contacto.html', {'form': form})
 
 def eliminar_contacto(request, id):
     contacto = get_object_or_404(Contacto, id=id)
     if request.method == 'POST':
         contacto.delete()
-        messages.success(request, 'Contacto eliminado')#confirmar eliminacion de contacto shi o no pasa na??
+        messages.success(request, 'Contacto eliminado')
         return redirect('lista_contactos')
     
     contexto = {'contacto': contacto}

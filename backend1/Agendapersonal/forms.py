@@ -1,13 +1,18 @@
 from django import forms
-from .models import Contacto
+from .models import Contacto 
 
-class ContactoForm(forms.ModelForm):#crea un formulario usando los datos heredados de modelos, validaciones
+class ContactoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #bucle de recorrido de los campos del formulario nombre tlfn etc
-        for field in self.fields:
-            self.fields[field].widget.attrs.update({'class': 'form-control'})
+        for field_name, field in self.fields.items():
+            if field_name == 'etiquetas':
+                field.widget.attrs.update({'class': 'form-select', 'size': '5'})
+            else:
+                field.widget.attrs.update({'class': 'form-control'})
 
     class Meta:
-        model = Contacto #creacion del formulario y los campos a rellenar(Segun caso de estudio solo son estos 4)
-        fields = ['nombre', 'telefono', 'correo', 'direccion']
+        model = Contacto
+        fields = ['nombre', 'telefono', 'correo', 'direccion', 'etiquetas']
+        widgets = {
+            'etiquetas': forms.SelectMultiple(attrs={'class': 'form-control'})
+        }

@@ -7,14 +7,14 @@
         <h1>Agenda telefonica de contactos</h1>
         <a href="{% url 'crear_contacto' %}" class="btn btn-success">Agregar Nuevo contacto a la Agenda</a>
     </div>
-<!-- esta plantilla hereda toda su estructura de la plantilla BASE para ejecutar busquedas mediante correo o nombre del contacto-->
+
     <form class="mb-4" method="get">
         <div class="input-group">
-            <input type="text" name="busqueda" class="form-control" placeholder="Buscar por nombre o correo...">
+            <input type="text" name="busqueda" class="form-control" placeholder="Buscar por nombre o correo..." value="{{ query|default:'' }}">
             <button class="btn btn-outline-secondary" type="submit">Buscar Contactos</button>
         </div>
     </form>
-<!--bucle de django para recorrer los contactos en la lista contactos -->
+
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {% for contacto in contactos %}
         <div class="col">
@@ -35,10 +35,51 @@
         </div>
         {% endfor %}
     </div>
-<!--compruebe si el campo se encuentra vacio o si la busqueda no ha funcionado porque no existe el contacto -->
+
     {% if not contactos %}
     <div class="alert alert-secondary mt-4">
         No se encontraron contactos con esos criterios de busqueda.
     </div>
     {% endif %}
+
+    {% if contactos.has_other_pages %}
+    <nav aria-label="Navegación de páginas" class="mt-4">
+        <ul class="pagination justify-content-center">
+            
+            {% if contactos.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ contactos.previous_page_number }}{% if query %}&busqueda={{ query }}{% endif %}">Anterior</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Anterior</span>
+                </li>
+            {% endif %}
+            
+            {% for i in contactos.paginator.page_range %}
+                {% if contactos.number == i %}
+                    <li class="page-item active" aria-current="page">
+                        <span class="page-link">{{ i }}</span>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ i }}{% if query %}&busqueda={{ query }}{% endif %}">{{ i }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if contactos.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ contactos.next_page_number }}{% if query %}&busqueda={{ query }}{% endif %}">Siguiente</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Siguiente</span>
+                </li>
+            {% endif %}
+
+        </ul>
+    </nav>
+    {% endif %}
+
 {% endblock %}
